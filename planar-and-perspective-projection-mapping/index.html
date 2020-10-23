@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!--  https://webglfundamentals.org/webgl/lessons/webgl-planar-projection-mapping.html-->
+  <title>Planar and perspective projection mapping</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="uiContainer">
+  <div id="ui">
+  </div>
+</div>
+<!-- vertex shader -->
+<script  id="vertex-shader-3d" type="x-shader/x-vertex">
+  attribute vec4 a_position;
+  attribute vec2 a_texcoord;
+
+  uniform mat4 u_projection;
+  uniform mat4 u_view;
+  uniform mat4 u_world;
+  uniform mat4 u_textureMatrix;
+
+  varying vec2 v_texcoord;
+  varying vec4 v_projectedTexcoord;
+
+
+  void main() {
+    vec4 worldPosition = u_world * a_position;
+    gl_Position = u_projection * u_view * worldPosition;
+
+    // Pass the texture coord to the fragment shader.
+    v_texcoord = a_texcoord;
+    v_projectedTexcoord = u_textureMatrix * worldPosition;
+  }
+</script>
+<!-- fragment shader -->
+<script  id="fragment-shader-3d" type="x-shader/x-fragment">
+  precision mediump float;
+
+  // Passed in from the vertex shader.
+  varying vec2 v_texcoord;
+  varying vec4 v_projectedTexcoord;
+
+  uniform vec4 u_colorMult;
+  uniform sampler2D u_texture;
+  uniform sampler2D u_projectedTexture;
+
+  void main() {
+    // Divide projected texture uv by w to get the correct value. See article on perspective
+    // Convert to be realitve to frustum clip range (-1, 1)
+    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+
+    // Check if it is in range
+    bool inRange =
+          projectedTexcoord.x >= 0.0 &&
+          projectedTexcoord.x <= 1.0 &&
+          projectedTexcoord.y >= 0.0 &&
+          projectedTexcoord.y <= 1.0;
+
+    vec4 projectedTexColor = texture2D(u_projectedTexture, projectedTexcoord.xy);
+    vec4 texColor = texture2D(u_texture, v_texcoord) * u_colorMult;
+
+    float projectedAmount = inRange ? 1.0 : 0.0;
+
+    // Only apply parts of projected texuture which are inside range
+    gl_FragColor = mix(texColor, projectedTexColor, projectedAmount);
+  }
+</script><!--
+for most samples webgl-utils only provides shader compiling/linking and
+canvas resizing because why clutter the examples with code that's the same in every sample.
+See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
+and https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+for webgl-utils, m3, m4, and webgl-lessons-ui.
+-->
+<script src="../lib/webgl-lessions-ui.js"></script>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/m4.js"></script>
+<script src="../lib/primitives.js"></script>
+<script src="./index.js"></script>
+
+</body>
+</html>

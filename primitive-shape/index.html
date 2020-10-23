@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+  <title>triangle</title>
+  <style>
+    body {
+      background-color: rgba(255, 0, 255, 0.75);
+    }
+  </style>
+</head>
+<body>
+<h5>webgl</h5>
+<h5>可以直接绘制以下7种基本图形，每2s换一次，gl.drawArrays的第一个参数依次是：</h5>
+<ul>
+  <li>gl.POINTS 孤立点</li>
+  <li>gl.LINES 孤立线段</li>
+  <li>gl.LINE_STRIP 连续线段</li>
+  <li>gl.LINE_LOOP 连续线圈</li>
+  <li>gl.TRIANGLES 孤立三角形</li>
+  <li>gl.TRIANGLE_STRIP 三角带</li>
+  <li>gl.TRIANGLE_FAN 三角扇</li>
+</ul>
+
+<canvas id="webgl" width="400" height="400">
+  Please use a browser that supports "canvas"
+</canvas>
+
+<script src="../lib/gl-util.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
