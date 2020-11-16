@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BasisU Encode Web</title>
+  <script src="../lib/jquery-3.5.1.min.js"></script>
+
+  <!-- For more formated demo scripts, ref:
+   https://www.notion.so/Texture-Compression-fe5d65ff61e146f9b4a737c2e298a24d#6aaa0333101b4233a6d06984052f4655-->
+  <script src="../lib/basis_encoder/web/basisu.js"></script>
+</head>
+<body>
+<textarea id="input" cols="80" rows="50"></textarea>
+<textarea id="output" cols="80" rows="50"></textarea>
+
+<button onclick="main();">Run</button>
+<script>
+  // Input
+  let message;
+  let point = -1;
+  function getArea(){
+    message = document.getElementById('input').value.split('\n');
+  }
+  function areaInput(){
+    if(point >= message.length - 1){
+      return null;
+    }
+    point += 1;
+    return message[point];
+  }
+
+  const main = function() {
+    // window.console.log = function(str) {
+    //     document.getElementById("output").value += '\n' + str;
+    // }
+
+    basisu().then(module => {
+      try {
+        const cwd = module.FS.cwd();
+        console.log('cwd:', cwd);
+      } catch(e) {
+        console.log('error for cwd: ', e);
+      }
+
+      $.ajax({
+        url: './images/shannon.png',
+        type: 'GET',
+        beforeSend: function(xhr) {
+          xhr.overrideMimeType("text/plain; charset=x-user-defined");
+        },
+        success: function(data) {
+          // Module['FS_createDataFile']("/tmp", "BATHROOM_baseColor.png", data, true, true);
+          module.FS.createDataFile("/tmp", "shannon.png", data, true, true)
+
+          try {
+            const stat = module.FS.stat(('tmp/shannon.png'), true);
+            console.log('tmp/shannon.png', ' stat:', stat);
+          } catch(e) {
+            console.log('error for stat: ', e);
+          }
+
+          try {
+            module.callMain(['tmp/shannon.png', '-debug', '-no_multithreading']);
+            // '-mipmap',
+            // '-comp_level', '1',
+            // '-max_endpoints', '16128',
+            // '-max_selectors', '16128',
+            // '-no_selector_rdo', '-no_endpoint_rdo']);
+          } catch(e) {
+            console.log(e);
+          }
+        }
+      })
+
+    })
+  }
+</script>
+
+</body>
+</html>
